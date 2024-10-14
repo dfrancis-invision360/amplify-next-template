@@ -1,4 +1,5 @@
 "use client";
+import { useAuthenticator } from "@aws-amplify/ui-react";
 
 import { useState, useEffect } from "react";
 import { generateClient } from "aws-amplify/data";
@@ -7,6 +8,7 @@ import "./../app/app.css";
 import { Amplify } from "aws-amplify";
 import outputs from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
+
 
 Amplify.configure(outputs);
 
@@ -21,6 +23,10 @@ export default function App() {
     });
   }
 
+  function deleteItem(id: string){
+      client.models.Todo.delete({ id })
+  }
+
   useEffect(() => {
     listTodos();
   }, []);
@@ -31,22 +37,24 @@ export default function App() {
     });
   }
 
+  const { signOut } = useAuthenticator();
+
   return (
     <main>
       <h1>My todos</h1>
       <button onClick={createTodo}>+ new</button>
-      <ul>
+      <ul style={{width: 400}}>
         {todos.map((todo) => (
-          <li key={todo.id}>{todo.content}</li>
+          <li key={todo.id} style={{display:'flex', justifyContent: 'space-between', alignItems:'center'}}>
+              {todo.content}
+              <button style={{marginLeft: 10}} onClick={() => deleteItem(todo.id)}>delete</button>
+          </li>
+
         ))}
       </ul>
-      <div>
-        🥳 App successfully hosted. Try creating a new todo.
-        <br />
-        <a href="https://docs.amplify.aws/nextjs/start/quickstart/nextjs-app-router-client-components/">
-          Review next steps of this tutorial.
-        </a>
-      </div>
+
+        <button onClick={signOut}>logout</button>
+
     </main>
   );
 }
